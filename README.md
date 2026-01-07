@@ -6,13 +6,25 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 
 ---
 
-## Visual Demo
+## Visual Demos
+*This project implements two distinct simulation engines to highlight the architectural differences between serial and parallel processors.*
 
-### GPU vs. CPU Performance
+### 1. The CPU Engine (MIMD Architecture)
+The CPU implementation uses **Rayon** to execute a **Work-Stealing** parallelism strategy.
+* **Logic:** The grid is split into chunks, and the 1D vector of cell states is distributed across available CPU cores (e.g., 8 cores on M3).
+* **Bottleneck:** While efficient for complex branching logic, the CPU is bound by the number of physical cores. At 16 million cells, the overhead of memory access and cache misses restricts performance, resulting in linear scaling where simulation time increases directly with grid size.
+
+*Rayon (CPU) visualization. Note the frame-time delta in the window title.*
+![Demo: CPU Visualization](media/output_cpu_smart.gif)
+
+### 2. The GPU Engine (SIMT Architecture)
+The GPU implementation utilizes **WGPU Compute Shaders** to leverage a "Single Instruction, Multiple Thread" architecture.
+* **Massive Parallelism:** Instead of looping, we dispatch thousands of **8x8 Workgroups**. Every cell is updated simultaneously by its own dedicated lightweight thread, mapping the grid directly to the GPU's Global Invocation ID.
+* **Zero-Copy Pipeline:** Unlike traditional renderers that copy data between RAM and VRAM, this system uses **Storage Buffers**. The Compute Shader writes the next state to VRAM, and the Fragment Shader reads *directly* from that same buffer to draw the screen.
+* **Ping-Pong Buffering:** To prevent race conditions (reading a neighbor that has already been updated), the system maintains two buffers. The compute pass binds `Buffer A` as `read_only` and `Buffer B` as `read_write`, swapping their roles every frame.
+
 *WGPU (Compute Shaders) visualization of the 4096² cells running at 60 FPS. Note the frame-time delta in the window title.*
 ![Demo: Zoom and Pan](media/output_gpu_smart.gif)
-*Rayon (CPU) visualization. Note the frame-time delta in the window title.*
-![Demo: Toggle Performance](media/output_cpu_smart.gif)
 
 ---
 
