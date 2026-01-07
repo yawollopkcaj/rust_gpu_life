@@ -7,6 +7,14 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 *Zoomed in Visuaization of Conway's Game of Life (2x speed)*
 ![Demo: Zoom and Pan](media/zoom_fast.gif)
 
+<p align="center">
+<caption><b>*Zoomed in Visuaization of Conway's Game of Life (2x speed)*</b></caption>
+</p>
+
+<p align="center">
+  <img src="media/zoom_fast.gif" width="600" />
+</p>
+
 ---
 ## First, What is Conway's Game of Life?
 
