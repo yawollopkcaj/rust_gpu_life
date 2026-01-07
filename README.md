@@ -4,7 +4,7 @@
 
 This project demonstrates the raw power of General-Purpose GPU (GPGPU) programming by simulating a 4096x4096 grid (approx. 16.7 million cells) in real-time. It features a hot-swappable toggle between a multi-threaded CPU engine (using Rayon) and a massively parallel GPU engine (using WGPU Compute Shaders).
 
-*Zoomed in Visuaization of Conway's Game of Life*
+*Zoomed in Visuaization of Conway's Game of Life (2x speed)*
 ![Demo: Zoom and Pan](media/zoom_fast.gif)
 
 ---
@@ -36,7 +36,7 @@ The CPU implementation uses **Rayon** to execute a **Work-Stealing** parallelism
 * **Logic:** The grid is split into chunks, and the 1D vector of cell states is distributed across available CPU cores (e.g., 8 cores on M3).
 * **Bottleneck:** While efficient for complex branching logic, the CPU is bound by the number of physical cores. At 16 million cells, the overhead of memory access and cache misses restricts performance, resulting in linear scaling where simulation time increases directly with grid size.
 
-*Rayon (CPU) visualization. Note the frame-time delta in the window title.*
+*Rayon (CPU) visualization. Note the frame-time delta in the window title (10x speed).*
 ![Demo: CPU Visualization](media/output_cpu_smart.gif)
 
 ### 2. The GPU Engine (SIMT Architecture)
@@ -45,7 +45,7 @@ The GPU implementation utilizes **WGPU Compute Shaders** to leverage a "Single I
 * **Zero-Copy Pipeline:** Unlike traditional renderers that copy data between RAM and VRAM, this system uses **Storage Buffers**. The Compute Shader writes the next state to VRAM, and the Fragment Shader reads *directly* from that same buffer to draw the screen.
 * **Ping-Pong Buffering:** To prevent race conditions (reading a neighbor that has already been updated), the system maintains two buffers. The compute pass binds `Buffer A` as `read_only` and `Buffer B` as `read_write`, swapping their roles every frame.
 
-*WGPU (Compute Shaders) visualization of the 4096² cells running at 60 FPS. Note the frame-time delta in the window title.*
+*WGPU (Compute Shaders) visualization running at 60 FPS. Note the frame-time delta in the window title (10x speed).*
 ![Demo: Zoom and Pan](media/output_gpu_smart.gif)
 
 ---
