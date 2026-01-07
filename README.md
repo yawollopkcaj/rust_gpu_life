@@ -1,4 +1,4 @@
-# Rust GPU Life: 16-Million Cell Simulation
+# Rust GPU Life
 
 **A high-performance, parallelized implementation of Conway’s Game of Life utilizing Rust, WGPU, and Compute Shaders.**
 
@@ -6,19 +6,17 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 
 ---
 
-## 🎥 Visual Demos
+## Visual Demo
 
-### 1. The 16-Million Cell Grid
-*Visualizing the massive scale of 4096² cells running at 60 FPS.*
+### CPU vs. GPU Performance
+*WGPU (Compute Shaders) visualization of the 4096² cells running at 60 FPS. Note the frame-time delta in the window title.*
 ![Demo: Zoom and Pan](media/output_gpu_smart.gif)
-
-### 2. CPU vs. GPU Performance Toggle
-*Real-time switching between Rayon (CPU) and WGPU (Compute Shader). Note the frame-time delta in the window title.*
+*Rayon (CPU) visualization. Note the frame-time delta in the window title.*
 ![Demo: Toggle Performance](media/output_cpu_smart.gif)
 
 ---
 
-## 📊 Performance Analysis
+## Performance Analysis
 
 The following benchmarks were conducted on an **Apple M1 Pro** (Unified Memory Architecture).
 
