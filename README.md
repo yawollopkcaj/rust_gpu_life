@@ -104,3 +104,34 @@ cd rust_gpu_life
 
 # Run in release mode (Essential for performance benchmarks)
 cargo run --release
+```
+
+Controls:
+
+Spacebar: Toggle between CPU and GPU modes.
+
+Console: Watch standard output for mode switch logs.
+
+## 🧠 Engineering Logic & Reflections
+
+### 1. The "Ferrari in Traffic" Paradox
+Early in development, I encountered a counter-intuitive problem: my GPU implementation wasn't visually faster than the CPU version.
+* **Observation:** At 1,024 x 1,024 resolution, the CPU calculated frames in ~2ms, while the GPU took ~0.01ms. However, because the monitor is capped at 60Hz (16ms per frame), both implementations looked identical.
+* **The Fix:** I had to drastically increase the workload (to 16 million cells) to saturate the CPU.
+* **Takeaway:** Performance engineering isn't just about making code fast; it's about understanding the **bottleneck hierarchy**. In this case, the bottleneck was the display hardware, not the compute capability.
+
+### 2. The Cost of Synchronization (Latency vs. Throughput)
+I made a deliberate architectural choice to keep the data flow **unidirectional (CPU → GPU)**.
+* **The Dilemma:** Switching from GPU mode back to CPU mode results in a "time travel" effect where the simulation reverts to the last CPU state.
+* **The Trade-off:** To fix this, I would need to read the GPU buffer back to RAM every frame. This introduces a massive pipeline stall, forcing the CPU to wait for the GPU to finish before proceeding.
+* **Decision:** I prioritized **throughput** over state synchronization. In a real-world simulation context, it is rarely efficient to treat the GPU as a co-processor that shares state 1:1 with the CPU; it should be treated as a distinct engine that runs ahead.
+
+### 3. Cellular Entropy & The Second Law
+Watching the simulation run for extended periods revealed an interesting behavior akin to the **Second Law of Thermodynamics**.
+* **Observation:** A random "soup" of 16 million cells has high entropy. As Conway's rules apply, chaos resolves into order (stable blocks, blinkers, gliders). Eventually, the "temperature" of the system drops until the grid becomes largely static.
+* **Curiosity:** This led me to experiment with a "God Mode" shader (not in this release) that randomly injects noise into dead zones, effectively adding energy back into the system to prevent "heat death."
+
+### 4. Why Rust for Graphics?
+Graphics programming is notoriously unsafe—one wrong pointer or buffer size and you crash the driver.
+* **Experience:** Using `wgpu` felt distinct from my experience with raw OpenGL/Vulkan. The rigorous type system caught synchronization errors (like trying to write to a buffer while it was being read) at compile-time.
+* **Conclusion:** Rust didn't just prevent crashes; it acted as a strict mentor, forcing me to understand the lifecycle of my GPU resources before I was allowed to run them.
