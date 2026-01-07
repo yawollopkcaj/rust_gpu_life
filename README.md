@@ -10,11 +10,11 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 
 ### 1. The 16-Million Cell Grid
 *Visualizing the massive scale of 4096² cells running at 60 FPS.*
-![Demo: Zoom and Pan](path/to/demo1.gif)
+![Demo: Zoom and Pan](media/output_gpu_smart.gif)
 
 ### 2. CPU vs. GPU Performance Toggle
 *Real-time switching between Rayon (CPU) and WGPU (Compute Shader). Note the frame-time delta in the window title.*
-![Demo: Toggle Performance](path/to/demo2.gif)
+![Demo: Toggle Performance](media/output_cpu_smart.gif)
 
 ---
 
