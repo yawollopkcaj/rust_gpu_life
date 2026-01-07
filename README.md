@@ -4,6 +4,9 @@
 
 This project demonstrates the raw power of General-Purpose GPU (GPGPU) programming by simulating a 4096x4096 grid (approx. 16.7 million cells) in real-time. It features a hot-swappable toggle between a multi-threaded CPU engine (using Rayon) and a massively parallel GPU engine (using WGPU Compute Shaders).
 
+*Zoomed in Visuaization of Conway's Game of Life*
+![Demo: Zoom and Pan](media/zoom_fast.gif)
+
 ---
 ## First, What is Conway's Game of Life?
 
