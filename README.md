@@ -8,7 +8,7 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 
 ## Visual Demo
 
-### CPU vs. GPU Performance
+### GPU vs. CPU Performance
 *WGPU (Compute Shaders) visualization of the 4096² cells running at 60 FPS. Note the frame-time delta in the window title.*
 ![Demo: Zoom and Pan](media/output_gpu_smart.gif)
 *Rayon (CPU) visualization. Note the frame-time delta in the window title.*
@@ -18,13 +18,13 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 
 ## Performance Analysis
 
-The following benchmarks were conducted on an **Apple M1 Pro** (Unified Memory Architecture).
+The following benchmarks were conducted on an **Apple M3 Pro** (Unified Memory Architecture).
 
 | Metric | Apple M-Series CPU (Parallel) | Apple M-Series GPU (Compute Shader) |
 | :--- | :--- | :--- |
-| **Time per Frame** | ~45ms | ~0.02ms |
-| **FPS** | ~20 FPS | 60 FPS (VSync Capped) |
-| **Speedup** | 1x | **2,250x** |
+| **Time per Frame** | ~30ms | ~5.0ms |
+| **FPS** | ~30 FPS | 60 FPS (VSync Capped) |
+| **Speedup** | 1x | **6x** |
 
 ### Bottleneck Analysis: The "Ferrari in Traffic" Problem
 During early testing with smaller grid sizes (1024x1024), the speedup was imperceptible.
@@ -32,10 +32,11 @@ During early testing with smaller grid sizes (1024x1024), the speedup was imperc
 * **GPU:** Takes ~0.01ms.
 * **The Issue:** The monitor refreshes every 16ms (60Hz). Both processors were finishing their work faster than the screen could update.
 * **The Solution:** Increased grid size to **16 million cells** (4096x4096) to saturate the CPU, revealing the true performance gap.
+*Note: increasing the grid size further would exagerate the difference in compute speed however it would make it impossible to see the vizualization*
 
 ---
 
-## 🛠 Technical Implementation
+## Technical Implementation
 
 ### 1. The GPU Pipeline (WGSL)
 The core simulation runs on a WebGPU pipeline. The architecture follows a strict 6-step process orchestrated by the Rust host:
@@ -51,49 +52,24 @@ The core simulation runs on a WebGPU pipeline. The architecture follows a strict
 I optimized the pipeline to leverage Unified Memory architectures (like Apple Silicon). The fragment shader reads directly from the Compute Storage Buffers to render the grid, minimizing buffer copy overhead.
 
 ### 3. Synchronization Strategy
-**"Time Traveling" & Unidirectional Data Flow**
-You may notice that switching from **CPU → GPU** is seamless, but switching **GPU → CPU** reverts the simulation to an old state.
-* **Why?** I deliberately chose a unidirectional data flow (CPU → GPU) to maximize bandwidth. The CPU acts as a "state injector," while the GPU runs a free-wheeling simulation.
+You may notice that switching from **CPU to GPU** is seamless, but switching **GPU to CPU** reverts the simulation to an old state.
+* **Why?** I deliberately chose a unidirectional data flow (CPU to GPU) to maximize bandwidth. The CPU acts as a "state injector," while the GPU runs a free-wheeling simulation.
 * **The Trade-off:** Reading the GPU state back to the CPU every frame would require a pipeline stall, killing performance. Therefore, the CPU state remains "frozen" in the past while the GPU simulation advances.
 
 ---
 
-## 👨‍💻 Engineering Logbook
-
-*A collection of development notes, optimization thoughts, and debugging observations.*
-
-### 📝 Setup & Tooling
-> **Note:** Cargo is the Rust package manager. `.wgsl` is the WebGPU Shading Language.
-> * `cargo new file_name` initializes the project.
-> * `Cargo.toml` manages dependencies.
-
-### 🐛 Debugging: The "Nested Folder" Incident
-> **Issue:** Accidentally created a nested folder structure during initialization.
-> **Fix:** Flattened directory structure to ensure `cargo run` targets the correct manifest immediately.
-
-### 📉 Observation: The Entropy Problem
-> **Issue:** "Particles stop moving after ~1 min."
->
-> **Analysis:** This is the **Second Law of Thermodynamics** applied to Cellular Automata. A random "soup" of cells has high entropy. As the rules of Life apply, chaos resolves into order (stable blocks, blinkers, gliders). Eventually, the "temperature" of the system drops until everything is either dead or stuck in a permanent loop.
->
-> **Proposed "God Mode" Fix:** To keep the simulation interesting, we could tweak the shader to randomly "resurrect" dead cells occasionally, injecting energy into the system to keep it boiling forever.
-
-### 🚀 Optimization: Unified Memory
-> **Action:** I optimized the pipeline to leverage Unified Memory architectures, minimizing buffer copy overhead. By avoiding the texture copy pass and reading storage buffers directly in the fragment shader, we save significant memory bandwidth.
-
----
-
-## 🦀 Why Rust?
+## Why Rust?
+*Other than me wanting to learn Rust for fun :D*
 
 ### 1. Safety in Graphics
 `wgpu` provides a safe wrapper around Vulkan/Metal/DX12. It catches validation errors—like the bind group mismatches encountered during development—at compile time or initialization, preventing driver crashes.
 
-### 2. Fearless Concurrency
+### 2. Concurrency
 The CPU fallback uses `rayon`. Rust’s borrow checker guarantees that the simulation state cannot be mutated by multiple threads simultaneously without explicit synchronization, allowing for safe parallel iteration.
 
 ---
 
-## 💻 How to Run
+## How to Run
 
 ```bash
 # Clone the repository
@@ -110,7 +86,8 @@ Spacebar: Toggle between CPU and GPU modes.
 
 Console: Watch standard output for mode switch logs.
 
-## 🧠 Engineering Logic & Reflections
+##  Logbook & Reflections
+*A collection of development notes, thoughts, and debugging observations.*
 
 ### 1. The "Ferrari in Traffic" Paradox
 Early in development, I encountered a counter-intuitive problem: my GPU implementation wasn't visually faster than the CPU version.
