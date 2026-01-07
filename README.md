@@ -5,6 +5,25 @@
 This project demonstrates the raw power of General-Purpose GPU (GPGPU) programming by simulating a 4096x4096 grid (approx. 16.7 million cells) in real-time. It features a hot-swappable toggle between a multi-threaded CPU engine (using Rayon) and a massively parallel GPU engine (using WGPU Compute Shaders).
 
 ---
+## First, What is Conway's Game of Life?
+
+The **Game of Life** is a cellular automaton. It's a discrete model studied in computability theory and complexity science. It is a "zero-player game," meaning its evolution is determined by its initial state, requiring no further input.
+
+The simulation takes place on a grid of cells, each of which is either **Alive (1)** or **Dead (0)**. Every cell interacts with its eight neighbors (horizontal, vertical, and diagonal) according to four simple rules:
+
+1.  **Underpopulation:** A live cell with fewer than 2 neighbors dies.
+2.  **Survival:** A live cell with 2 or 3 neighbors lives on to the next generation.
+3.  **Overpopulation:** A live cell with more than 3 neighbors dies.
+4.  **Reproduction:** A dead cell with exactly 3 live neighbors becomes a live cell.
+
+### Why use it for Benchmarking?
+While the rules are simple, they produce complex, chaotic behaviors that are computationally expensive to simulate at scale.
+* **Memory Bound:** Every cell update requires reading the state of 8 distinct memory addresses (neighbors).
+* **Embarrassingly Parallel:** Since the state of a cell depends only on the *previous* frame, every single cell can be calculated simultaneously.
+
+This makes the Game of Life an ideal candidate for stress-testing **GPU Memory Bandwidth** and **Parallel Compute Architecture**.
+
+---
 
 ## Visual Demos
 *This project implements two distinct simulation engines to highlight the architectural differences between serial and parallel processors.*
