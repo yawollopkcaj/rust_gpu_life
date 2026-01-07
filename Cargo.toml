@@ -1,0 +1,14 @@
+[package]
+name = "rust_gpu_life"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+winit = "0.30"        # The new standard
+wgpu = "22.0"         # Matches winit 0.30
+pollster = "0.3"
+bytemuck = { version = "1.16", features = ["derive"] }
+rand = "0.8"
+env_logger = "0.11"
+log = "0.4"
+rayon = "1.8"
