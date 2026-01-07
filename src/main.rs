@@ -11,10 +11,9 @@ use winit::{
 use wgpu::util::DeviceExt;
 use rayon::prelude::*;
 
-// --- CONFIGURATION ---
+// Config
 // const GRID_SIZE: u32 = 1024;
-// Go from 1 Million -> 16 Million cells
-const GRID_SIZE: u32 = 4096;
+const GRID_SIZE: u32 = 1024 * 4;
 const WORKGROUP_SIZE: u32 = 8;
 
 struct GraphicsState {
@@ -88,7 +87,7 @@ impl ApplicationHandler for App {
         let state = pollster::block_on(init_gpu(window.clone()));
         self.state = Some(state);
 
-        // We must manually request the very first frame to start the loop.
+        // manually request the very first frame to start the loop.
         self.state.as_ref().unwrap().window.request_redraw();
     }
 
@@ -106,7 +105,7 @@ impl ApplicationHandler for App {
                 WindowEvent::RedrawRequested => {
                     let start = Instant::now();
 
-                    // 1. CPU LOGIC (Done FIRST to avoid borrow conflicts)
+                    // CPU LOGIC (Done first to avoid borrow conflicts)
                     if state.using_cpu {
                         state.compute_cpu();
                         
@@ -115,7 +114,7 @@ impl ApplicationHandler for App {
                         state.queue.write_buffer(buffer_dest, 0, bytemuck::cast_slice(&state.cpu_buffer));
                     }
 
-                    // 2. NOW we get the GPU resources (Immutable Borrow starts here)
+                    // get the GPU resources (Immutable Borrow starts here)
                     let frame = match state.surface.get_current_texture() {
                         Ok(frame) => frame,
                         Err(_) => return,
@@ -126,7 +125,7 @@ impl ApplicationHandler for App {
                     // Select Bind Group
                     let bind_group = if state.step % 2 == 0 { &state.bind_group_a } else { &state.bind_group_b };
 
-                    // 3. GPU LOGIC (Only runs if NOT using CPU)
+                    // GPU LOGIC (Only runs if NOT using CPU)
                     if !state.using_cpu {
                         let mut cpass = encoder.begin_compute_pass(&Default::default());
                         cpass.set_pipeline(&state.compute_pipeline);
@@ -134,7 +133,7 @@ impl ApplicationHandler for App {
                         cpass.dispatch_workgroups(GRID_SIZE / WORKGROUP_SIZE, GRID_SIZE / WORKGROUP_SIZE, 1);
                     }
 
-                    // 4. RENDER PASS (Always runs to show result)
+                    // Render pass (Always runs to show result)
                     {
                         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                             label: None,

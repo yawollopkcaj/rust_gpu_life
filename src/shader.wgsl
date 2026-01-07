@@ -1,10 +1,8 @@
-// CONSTANTS
-// If you change the grid size here, you must change it in main.rs too
+// Consts
 // const GRID_SIZE: u32 = 1024u;
-// Go from 1 Million -> 16 Million cells
-const GRID_SIZE: u32 = 4096;
+const GRID_SIZE: u32 = 1024u * 4u;
 
-// Bind Group 0: Storage Buffers (The Memory)
+// Bind Group 0: Storage Buffers (Memory)
 // binding(0) is the Previous Frame (Read Only)
 // binding(1) is the Current Frame (Write Only)
 @group(0) @binding(0) var<storage, read> cellStateIn: array<u32>;
@@ -14,7 +12,7 @@ fn get_index(x: u32, y: u32) -> u32 {
     return (y % GRID_SIZE) * GRID_SIZE + (x % GRID_SIZE);
 }
 
-// --- 1. COMPUTE SHADER (The Physics) ---
+// Compute shader (The Physics)
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let x = global_id.x;
@@ -47,7 +45,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     }
 }
 
-// --- 2. VERTEX SHADER (The Geometry) ---
+// Vertex shader (The Geometry)
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
     @location(0) uv: vec2<f32>,
@@ -62,23 +60,23 @@ fn vs_main(@builtin(vertex_index) v_index: u32) -> VertexOutput {
     );
     var output: VertexOutput;
     output.position = vec4<f32>(pos[v_index], 0.0, 1.0);
-    // Convert Position to UV coordinates (0.0 to 1.0) for texture mapping
+    // Convert Position to UV coordinates for texture mapping
     output.uv = (pos[v_index] + 1.0) * 0.5;
     output.uv.y = 1.0 - output.uv.y; // Flip Y
     return output;
 }
 
-// --- 3. FRAGMENT SHADER (The Visuals) ---
+// Fragment shader (Visuals)
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    // Map the pixel coordinate on screen to a cell in our grid
+    // Map pixel coordinate on screen to a cell in grid
     let x = u32(in.uv.x * f32(GRID_SIZE));
     let y = u32(in.uv.y * f32(GRID_SIZE));
     let index = get_index(x, y);
     
     let state = cellStateIn[index];
     
-    // COLORING
+    // Colour
     if (state == 1u) {
         // Alive Cell Color
         return vec4<f32>(0.6, 0.2, 1.0, 1.0); // Bright Neon Purple
