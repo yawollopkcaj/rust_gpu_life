@@ -8,7 +8,7 @@ This project demonstrates the raw power of General-Purpose GPU (GPGPU) programmi
 ![Demo: Zoom and Pan](media/zoom_fast.gif)
 
 <p align="center">
-<caption><b>*Zoomed in Visuaization of Conway's Game of Life (2x speed)*</b></caption>
+<caption><i>*Zoomed in Visuaization of Conway's Game of Life (2x speed)*</i></caption>
 </p>
 
 <p align="center">
