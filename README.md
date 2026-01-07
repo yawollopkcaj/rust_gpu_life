@@ -81,10 +81,10 @@ cargo run --release
 ```
 
 Controls:
+* Spacebar: Toggle between CPU and GPU modes.
+* Console: Watch standard output for mode switch logs.
 
-Spacebar: Toggle between CPU and GPU modes.
-
-Console: Watch standard output for mode switch logs.
+---
 
 ##  Logbook & Reflections
 *A collection of development notes, thoughts, and debugging observations.*
